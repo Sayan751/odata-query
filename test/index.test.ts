@@ -1,4 +1,4 @@
-import buildQuery, { Expand } from '../src/index';
+import buildQuery, { Expand, Filter } from '../src/index';
 
 it('should return an empty string by default', () => {
   expect(buildQuery()).toEqual('');
@@ -28,7 +28,7 @@ describe('filter', () => {
     });
 
     it('should allow passing filter as an array of objects and strings', () => {
-      const filter = [
+      const filter: Filter = [
         { SomeProp: 1 },
         { AnotherProp: 2 },
         "startswith(Name, 'R')",
@@ -69,14 +69,14 @@ describe('filter', () => {
     });
 
     it('should ignore/omit filter if set to undefined', () => {
-      const filter = { IgnoreProp: undefined };
+      const filter: Filter = { IgnoreProp: undefined };
       const expected = '';
       const actual = buildQuery({ filter });
       expect(actual).toEqual(expected);
     });
 
     it('should check for null (and not be omitted/ignored)', () => {
-      const filter = { SomeProp: null };
+      const filter: Filter = { SomeProp: null };
       const expected = '?$filter=SomeProp eq null';
       const actual = buildQuery({ filter });
       expect(actual).toEqual(expected);
@@ -120,7 +120,7 @@ describe('filter', () => {
 
   describe('logical operators', () => {
     it('should handle simple logical operators (not) as an object', () => {
-      const filter = {
+      const filter: Filter = {
         and: [
           { not: { FooProp: { startswith: 'foo' } } },
           { not: { BarProp: { startswith: 'bar' } } },
@@ -165,7 +165,7 @@ describe('filter', () => {
     });
 
     it('should handle logical operators (not) as an array', () => {
-      const filter = {
+      const filter: Filter = {
         or: [
           {
             not: [
@@ -182,7 +182,7 @@ describe('filter', () => {
     });
 
     it('should handle simple logical operators (and, or, etc) as an array', () => {
-      const filter = { and: [{ SomeProp: 1 }, { AnotherProp: 2 }] };
+      const filter: Filter = { and: [{ SomeProp: 1 }, { AnotherProp: 2 }] };
       const expected = '?$filter=((SomeProp eq 1) and (AnotherProp eq 2))';
       const actual = buildQuery({ filter });
       expect(actual).toEqual(expected);
@@ -196,7 +196,7 @@ describe('filter', () => {
     });
 
     it('should handle nested logical operators', () => {
-      const filter = {
+      const filter: Filter = {
         and: [{ SomeProp: 1 }, { or: [{ AnotherProp: 2 }, { ThirdProp: 3 }] }],
       };
       const expected =
@@ -220,14 +220,14 @@ describe('filter', () => {
     });
 
     it('should ignore implied logical operator with undefined filters', () => {
-      const filter = [undefined];
+      const filter: Filter = [undefined];
       const expected = '';
       const actual = buildQuery({ filter });
       expect(actual).toEqual(expected);
     });
 
     it('should ignore implied logical operator with null filters', () => {
-      const filter = [null];
+      const filter: Filter = [null];
       const expected = '';
       const actual = buildQuery({ filter });
       expect(actual).toEqual(expected);
@@ -248,14 +248,14 @@ describe('filter', () => {
     });
 
     it('should omit/ignore undefined filters', () => {
-      const filter = { and: [undefined] };
+      const filter: Filter = { and: [undefined] };
       const expected = '';
       const actual = buildQuery({ filter });
       expect(actual).toEqual(expected);
     });
 
     it('should omit/ignore null filters', () => {
-      const filter = { and: [null] };
+      const filter: Filter = { and: [null] };
       const expected = '';
       const actual = buildQuery({ filter });
       expect(actual).toEqual(expected);
@@ -296,7 +296,7 @@ describe('filter', () => {
     });
 
     it('should handle nested properties using "/" selectors', () => {
-      const filter = {
+      const filter: Filter = {
         Prop1: {
           NestedProp1: 1,
         },
@@ -317,7 +317,7 @@ describe('filter', () => {
     });
 
     it('should handle nested properties using objects', () => {
-      const filter = {
+      const filter: Filter = {
         Prop1: {
           NestedProp1: 1,
         },
@@ -350,7 +350,7 @@ describe('filter', () => {
     });
 
     it('should handle more stuff jason stadler throws at it - not working', () => {
-      const filter = {
+      const filter: Filter = {
         Prop1: {
           NestedProp1: 1,
         },
@@ -373,7 +373,7 @@ describe('filter', () => {
     });
 
     it('should handle nested logical operators and nested properties using "/" selectors', () => {
-      const filter = {
+      const filter: Filter = {
         Prop1: {
           NestedProp1: 1,
         },
@@ -395,7 +395,7 @@ describe('filter', () => {
 
     // TODO: duplicating filter clauses `(Prop2/NestedProp2/DeeplyNestedProp2 eq 2 and Prop2/NestedProp3 ne null)`.  Still logically the same result
     it.skip('should handle nested logical operators and deeply nested properties on same property using objects (shorthand)', () => {
-      const filter = {
+      const filter: Filter = {
         Prop1: {
           NestedProp1: 1,
         },
@@ -426,7 +426,7 @@ describe('filter', () => {
     });
 
     it('should handle nested logical operators and deeply nested properties on same property using objects (expanded)', () => {
-      const filter = {
+      const filter: Filter = {
         Prop1: {
           NestedProp1: 1,
         },
@@ -509,7 +509,7 @@ describe('filter', () => {
     });
 
     it('should handle collection operator with array of objects as implied `and`', () => {
-      const filter = {
+      const filter: Filter = {
         Tasks: {
           any: [{ AssignedGroupId: 1234 }, { StatusId: 300 }],
         },
@@ -521,7 +521,7 @@ describe('filter', () => {
     });
 
     it('should handle collection operator with nested collection operator', () => {
-      const filter = {
+      const filter: Filter = {
         Tasks: {
           any: {
             SubTasks: {
@@ -562,7 +562,7 @@ describe('filter', () => {
     });
 
     it('should handle collection operator with object specifying operator', () => {
-      const filter = {
+      const filter: Filter = {
         Tasks: {
           any: {
             or: [{ AssignedGroupId: 1234 }, { StatusId: 300 }],
@@ -611,7 +611,7 @@ describe('filter', () => {
     });
 
     it('should handle collection operator with a function indexof', () => {
-      const filter = {
+      const filter: Filter = {
         Tasks: {
           any: {
             "indexof(toupper(searchProp),'foo')": {
@@ -664,7 +664,7 @@ describe('filter', () => {
     });
 
     it('should handle GUID values', () => {
-      const filter = {
+      const filter: Filter = {
         someProp: {
           eq: { type: 'guid', value: 'cd5977c2-4a64-42de-b2fc-7fe4707c65cd' },
         },
@@ -689,7 +689,7 @@ describe('filter', () => {
     });
 
     it('should handle GUID values with an in operator', () => {
-      const filter = {
+      const filter: Filter = {
         someProp: {
           in: {
             type: 'guid',
@@ -707,7 +707,7 @@ describe('filter', () => {
     });
 
     it('should handle raw values', () => {
-      const filter = { someProp: { eq: { type: 'raw', value: '2018-03-30' } } };
+      const filter: Filter = { someProp: { eq: { type: 'raw', value: '2018-03-30' } } };
       const expected = '?$filter=someProp eq 2018-03-30';
       const actual = buildQuery({ filter });
       expect(actual).toEqual(expected);
@@ -721,7 +721,7 @@ describe('filter', () => {
     });
 
     it('should handle binary values', () => {
-      const filter = {
+      const filter: Filter = {
         someProp: { eq: { type: 'binary', value: 'YmluYXJ5RGF0YQ==' } },
       };
       const expected = "?$filter=someProp eq binary'YmluYXJ5RGF0YQ=='";
@@ -1027,7 +1027,7 @@ describe('select', () => {
     expect(actual).toEqual(expected);
   });
 
-  // TOOD: Support dot '.' and slash '/' smart expansion
+  // TODO: Support dot '.' and slash '/' smart expansion
 });
 
 describe('orderBy', () => {
@@ -1204,14 +1204,14 @@ describe('expand', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should allow nested expands with slash seperator', () => {
+  it('should allow nested expands with slash separator', () => {
     const expand = 'Friends/Photos';
     const expected = '?$expand=Friends($expand=Photos)';
     const actual = buildQuery({ expand });
     expect(actual).toEqual(expected);
   });
 
-  it('should support multiple nested expands with slash seperator as an array', () => {
+  it('should support multiple nested expands with slash separator as an array', () => {
     const expand = ['Foo/Bar/Baz', 'One/Two'];
     const expected = '?$expand=Foo($expand=Bar($expand=Baz)),One($expand=Two)';
     const actual = buildQuery({ expand });
